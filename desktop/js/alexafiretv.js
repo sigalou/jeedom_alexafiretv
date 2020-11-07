@@ -315,7 +315,7 @@ function addCmdToTable(_cmd) {
       //     +     '<span class="subType" subType="' + init(_cmd.subType) + '"></span>'
       +
       '</td>' +
-      '<td>'
+      '<td><input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="request">'
       //     +     '<small><span class="cmdAttr"  data-l1key="configuration" data-l2key="cmd"></span> Résultat de la commande <span class="cmdAttr"  data-l1key="configuration" data-l2key="taskname"></span> (<span class="cmdAttr"  data-l1key="configuration" data-l2key="taskid"></span>)</small>'
 
       //    +     '<span class="cmdAttr"  data-l1key="configuration" data-l2key="value"></span>'

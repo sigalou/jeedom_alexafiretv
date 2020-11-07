@@ -137,7 +137,7 @@ class alexafiretv extends eqLogic
 
   public function lanceCmd($_name,$_cmd)
     {
-	$commande=self::prefixeRoot() . "adb -s ".$this->getConfiguration('adresseip').":5555 " . $_cmd;
+	$commande=self::prefixeRoot() . "adb -s ".$this->getConfiguration('adresseip').":5555 shell ". $_cmd;
 	log::add('alexafiretv', 'debug', '╠═══> Lancement de la commande '.$_name.' => '.$commande);
 	$reponse=trim(shell_exec($commande));
 	log::add('alexafiretv', 'info', " ╠═══> Récupération de ".$_name.' = '.$reponse);
@@ -356,13 +356,13 @@ class alexafiretv extends eqLogic
 	if ($this->testFireTVConnexion($this->getName(), $this->getConfiguration('adresseip'))) {
 		log::add('alexafiretv', 'info', " ╔══════════════════════[Refresh de ".$this->getName()."]════════════════════════════════════════════════════════════════════════════");
 		$this->setStatus('online', true);
-		$resolution  = self::RecupInfo("Résolution", 'string', "shell dumpsys window displays | grep init | cut -c45-53");
-		$power_state = self::RecupInfo("Power", 'string', "Power","shell dumpsys power -h | grep \"Display Power\" | cut -c22-");
-		$encours     = self::RecupInfo("En Cours", 'string', "shell dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d ' ' -f 7");
-		$type        = self::RecupInfo("Type", 'string', "shell getprop ro.build.characteristics");
-		$disk_free   = self::RecupInfo("DiskFree", 'string', "shell dumpsys diskstats | grep Data-Free | cut -d' ' -f7");
+		$resolution  = self::RecupInfo("Résolution", 'string', "dumpsys window displays | grep init | cut -c45-53");
+		$power_state = self::RecupInfo("Power", 'string', "dumpsys power -h | grep \"Display Power\" | cut -c22-");
+		$encours     = self::RecupInfo("En Cours", 'string', "dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d ' ' -f 7");
+		$type        = self::RecupInfo("Type", 'string', "getprop ro.build.characteristics");
+		$disk_free   = self::RecupInfo("DiskFree", 'string', "dumpsys diskstats | grep Data-Free | cut -d' ' -f7");
 		//$disk_total  = self::RecupInfo("DiskTotal", 'string', round($this->lanceCmd("DiskTotal","shell dumpsys diskstats | grep Data-Free | cut -d' ' -f4")/1000000, 1));
-		$disk_total  = self::RecupInfo("DiskTotal", 'string', "shell dumpsys diskstats | grep Data-Free | cut -d' ' -f4");
+		$disk_total  = self::RecupInfo("DiskTotal", 'string', "dumpsys diskstats | grep Data-Free | cut -d' ' -f4");
 		
 		if ($power_state=='ON')	$this->setStatus('on', true); else $this->setStatus('on', false);
 		
@@ -383,22 +383,11 @@ class alexafiretv extends eqLogic
       //log::add('alexafiretv', 'debug', "resolution: " .$resolution );
 	}
     
-	public function RecupInfo($LogicalId, $SubType, $_shellExec)
+	public function RecupInfo($LogicalId, $SubType, $_shellExecDefault)
     {
-	try {
-	$_resultat=$this->lanceCmd($LogicalId,$_shellExec);
-	
-	if ($LogicalId == 'DiskTotal') $_resultat=round($_resultat/1000000, 1);
-	
-	} catch (Exception $exc) {
-		log::add('alexafiretv', 'error', __('Erreur2 pour ', __FILE__) . ' : ' . $exc->getMessage());
-		return "error";
-	}		
 		
-		
-		
-		
-	log::add('alexafiretv', 'debug', '╠═══> Traitement '.$LogicalId.' => '.$_resultat);
+
+	//log::add('alexafiretv', 'debug', '╠═══> Traitement '.$LogicalId.' => '.$_resultat);
 	// Ici on vérifie que la commande info existe sinon on l'ajoute et on rafraichi la valeur
 	try {
 	$cmd = $this->getCmd(null, $LogicalId);
@@ -414,15 +403,21 @@ class alexafiretv extends eqLogic
 			if (empty($Name)) $Name = $LogicalId; // déplacé le 19/09/2020
 			$cmd->setName($LogicalId);
 			$cmd->setIsVisible(1);
+            $cmd->setOrder("2");
 	//		if (!empty($setDisplayicon)) $cmd->setDisplay('icon', '<i class="' . $setDisplayicon . '"></i>');
-	//		if (!empty($request)) $cmd->setConfiguration('request', $request);
+			$cmd->setConfiguration('request', $_shellExecDefault);
 			$cmd->setDisplay('title_disable', 0);
 			//$cmd->setOrder($Order);
 			$cmd->save(); // déplacé le 19/09/2020
 		}
+	$shellExec = $cmd->getConfiguration('request', $_shellExecDefault);
+	$_resultat=$this->lanceCmd($LogicalId,$shellExec);
+	if ($LogicalId == 'DiskTotal') $_resultat=round($_resultat/1000000, 1);
+		
+		
 		//$cmd->setValue($_resultat);
 		log::add('alexafiretv', 'info', ' ╠═══> Enregistrement de '.$LogicalId. " --> ".$_resultat);
-        $this->checkAndUpdateCmd($LogicalId, "*".$_resultat."*");
+        $this->checkAndUpdateCmd($LogicalId, $_resultat);
 	
 	} catch (Exception $exc) {
 		log::add('alexafiretv', 'error', __('Erreur pour ', __FILE__) . ' : ' . $exc->getMessage());
@@ -615,6 +610,7 @@ class alexafiretv extends eqLogic
                         $refresh = new alexafiretvCmd();
                         $refresh->setLogicalId('refresh');
                         $refresh->setIsVisible(1);
+	                    $refresh->setOrder("1");
                         $refresh->setDisplay('icon', '<i class="fas fa-sync"></i>');
                         $refresh->setName(__('Refresh', __FILE__));
                     }
