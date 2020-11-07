@@ -191,7 +191,7 @@ $('#bt_req2').off('click').on('click', function () {
 });
 $('#bt_sante').off('click').on('click', function () {
   $('#md_modal').dialog({
-    title: "{{Liste Amazon Echo}}"
+    title: "{{Liste Amazon Fire TV}}"
   });
   $('#md_modal').load('index.php?v=d&plugin=alexafiretv&modal=health').dialog('open');
 });

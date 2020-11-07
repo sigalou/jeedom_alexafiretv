@@ -134,6 +134,84 @@ class alexafiretv extends eqLogic
         passthru('/bin/bash ' . $resource_path . '/install.sh ' . $resource_path . ' > ' . log::getPathToLog('alexafiretv_dep') . ' 2>&1 &');
     }
 
+
+  public function lanceCmd($_name,$_cmd)
+    {
+	$commande=self::prefixeRoot() . "adb -s ".$this->getConfiguration('adresseip').":5555 " . $_cmd;
+	log::add('alexafiretv', 'debug', '╠═══> Lancement de la commande '.$_name.' => '.$commande);
+	$reponse=trim(shell_exec($commande));
+	log::add('alexafiretv', 'info', " ╠═══> Récupération de ".$_name.' = '.$reponse);
+	return $reponse;
+  	}
+
+  public function prefixeRoot()
+    {
+	$testRoot="";
+	$root = exec("\$EUID");
+	if ($root != "0") $testRoot = "sudo ";
+	return $testRoot;
+  	}
+
+
+    public function testFireTVConnexion($_name,$_adresseip = null)
+    {
+	if ($_adresseip == null) {
+		log::add('alexafiretv', 'warning', "╔══════════════════════[Erreur de configuration]════════════════════════════════════════════════════════════════════════════");
+		log::add('alexafiretv', 'warning', "╠═══> L'adresse IP n'a pas été précisée dans la configuration de ".$_name);
+		log::add('alexafiretv', 'warning', "╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════");
+		return false;
+	}
+	$commande=self::prefixeRoot() . "adb devices | grep " . $_adresseip . " | cut -f2 | xargs";
+	log::add('alexafiretv', 'info', " ╔══════════════════════[Test connexion à ".$_name."]════════════════════════════════════════════════════════════════════════════");
+	log::add('alexafiretv', 'debug', "╠═══> Envoi de ".$commande);
+	$reponse=shell_exec($commande);
+	log::add('alexafiretv', 'debug', "╠═══> Résultat [".$reponse."]");
+
+        switch (trim($reponse)) {
+		
+            case 'offline':
+            log::add('alexafiretv', 'info', ' ╠═══> Echec : '.$_name.' est offline');
+			return $this->connectADB($_name,$_adresseip);
+			break;
+			
+            case '':
+            log::add('alexafiretv', 'info', ' ╠═══> Echec : '.$_name.' non connecté');
+			return $this->connectADB($_name,$_adresseip);
+			break;
+			
+            case 'unauthorized':
+            log::add('alexafiretv', 'info', ' ╠═══> Echec : Connection non autorisée à '.$_name);
+			return $this->connectADB($_name,$_adresseip);
+			break;
+			
+			
+			default: //donc = device
+            log::add('alexafiretv', 'info', ' ╠═══> Succès : Tout va bien, '.$_name.' connecté');
+			log::add('alexafiretv', 'info', " ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════");
+			return true;			
+		}
+	
+    }
+
+   public function connectADB($_name,$_adresseip = null)
+    {
+        log::add('alexafiretv', 'info', ' ╠══════> On tente une connexion à '.$_name);
+        log::add('alexafiretv', 'debug', '╠══════> Connexion au périphérique '.$_adresseip.' en cours - Envoi de adb connect '.$_adresseip);
+        $reponse=shell_exec(self::prefixeRoot() . "adb connect ".$_adresseip);
+		switch (substr(trim($reponse),0,6)) {
+		
+            case 'unable':
+            log::add('alexafiretv', 'info', ' ║ !!!!!! Connexion au périphérique '.$_adresseip.' : Echec '.$reponse.' !!!!!!!');
+			log::add('alexafiretv', 'info', " ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════");
+			return false;
+			
+			default: //donc = device
+            log::add('alexafiretv', 'info', ' ╠═══> Succès : Tout va bien, '.$_name.' connecté');
+			log::add('alexafiretv', 'info', " ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════");
+			return true;			
+		}
+    }
+
 	
     public static function cron($_eqlogic_id = null)
     {
@@ -141,13 +219,15 @@ class alexafiretv extends eqLogic
         $dd = new Cron\CronExpression('* * * * *', new Cron\FieldFactory);
         $dependancy_info= self::dependancy_info();
         if ($dd->isDue() && $dependancy_info['state'] == 'ok') {
+            //log::add('alexafiretv', 'debug', 'CRON1 ');
             $plugin = plugin::byId('alexafiretv');
             $eqLogics = eqLogic::byType($plugin->getId());
+            //log::add('alexafiretv', 'debug', 'CRON1_1 de ' . $eqLogic->getName());
             foreach ($eqLogics as $eqLogic) {
-                if ($eqLogic->getStatus('Playing')) { // On va chercher un Device en "Playing"
-                    log::add('alexafiretv', 'debug', 'Refresh automatique (CRON) de ' . $eqLogic->getName());
+            //log::add('alexafiretv', 'debug', 'CRON1_2 de ' . $eqLogic->getName());
+                    //log::add('alexafiretv', 'debug', 'Refresh automatique (CRON) de ' . $eqLogic->getName());
                     $eqLogic->refresh();
-                }
+
             }
         }
 
@@ -172,28 +252,6 @@ class alexafiretv extends eqLogic
             }
         }
 
-        $c = new Cron\CronExpression('*/6 * * * *', new Cron\FieldFactory);
-        if ($c->isDue() && $dependancy_info['state'] == 'ok') {
-            //self::checkAuth(); 20/09/2020 on désactive ce test pour voir s'il est utile ou pas
-        }
-
-        $autorefreshRR = config::byKey('autorefresh', 'alexafiretv', '33 3 * * *');/* boucle qui relance la connexion au serveur*/
-        $cc = new Cron\CronExpression($autorefreshRR, new Cron\FieldFactory);
-        if ($cc->isDue() && $dependancy_info['state'] == 'ok') {
-            self::restartServeurPHP();
-        }
-
-        $r = new Cron\CronExpression('*/16 * * * *', new Cron\FieldFactory); // boucle refresh
-        //		$r = new Cron\CronExpression('* * * * *', new Cron\FieldFactory);// boucle refresh
-        if ($r->isDue() && $dependancy_info['state'] == 'ok') {
-            $eqLogics = ($_eqlogic_id !== null) ? array(eqLogic::byId($_eqlogic_id)) : eqLogic::byType('alexafiretv', true);
-            config::save("listRoutinesProchain", time() + 960, "alexafiretv");
-            foreach ($eqLogics as $alexafiretv) {
-                //log::add('alexafiretv_node', 'debug', 'CRON Refresh: '.$alexafiretv->getName());
-                $alexafiretv->refresh();
-                sleep(2);
-            }
-        }
         //log::add('alexafiretv', 'debug', '---------------------------------------------FIN CRON------------------------');
     }
 
@@ -291,9 +349,86 @@ class alexafiretv extends eqLogic
         return true;
     }*/
 
+
     public function refresh()
     { 
-
+	
+	if ($this->testFireTVConnexion($this->getName(), $this->getConfiguration('adresseip'))) {
+		log::add('alexafiretv', 'info', " ╔══════════════════════[Refresh de ".$this->getName()."]════════════════════════════════════════════════════════════════════════════");
+		$this->setStatus('online', true);
+		$resolution  = self::RecupInfo("Résolution", 'string', "shell dumpsys window displays | grep init | cut -c45-53");
+		$power_state = self::RecupInfo("Power", 'string', "Power","shell dumpsys power -h | grep \"Display Power\" | cut -c22-");
+		$encours     = self::RecupInfo("En Cours", 'string', "shell dumpsys window windows | grep -E 'mFocusedApp'| cut -d / -f 1 | cut -d ' ' -f 7");
+		$type        = self::RecupInfo("Type", 'string', "shell getprop ro.build.characteristics");
+		$disk_free   = self::RecupInfo("DiskFree", 'string', "shell dumpsys diskstats | grep Data-Free | cut -d' ' -f7");
+		//$disk_total  = self::RecupInfo("DiskTotal", 'string', round($this->lanceCmd("DiskTotal","shell dumpsys diskstats | grep Data-Free | cut -d' ' -f4")/1000000, 1));
+		$disk_total  = self::RecupInfo("DiskTotal", 'string', "shell dumpsys diskstats | grep Data-Free | cut -d' ' -f4");
+		
+		if ($power_state=='ON')	$this->setStatus('on', true); else $this->setStatus('on', false);
+		
+		//$title = substr($this->lanceCmd("Titre","shell dumpsys bluetooth_manager | grep MediaPlayerInfo | grep .$encours. |cut -d')' -f3 | cut -d, -f1 | grep -v null | sed 's/^\ *//g'"), 0);
+		//$name        = self::RecupInfo("Name", substr($this->lanceCmd("Name","shell getprop ro.product.model"), 0, -1));
+		//$volume = substr($this->lanceCmd("Volume","shell media volume --stream 3 --get | grep volume |grep is | cut -d\ -f4"), 0, -1);
+		//$play_state  = substr($this->lanceCmd("Status","shell dumpsys bluetooth_manager | grep mCurrentPlayState | cut -d,  -f1 | cut -c43-"), 0, -1);
+		//$lancePause        = substr($this->lanceCmd("Pause","shell media dispatch pause"), 0, -1);
+		//$lancePause        = substr($this->lanceCmd("Play","shell media dispatch play"), 0, -1);
+	} else {
+		log::add('alexafiretv', 'info', " ╔══════════════════════[Refresh de ".$this->getName()."]════════════════════════════════════════════════════════════════════════════");
+		//log::add('alexafiretv', 'debug', "résultat test connexion: " .$resultatTestConnexion );
+		log::add('alexafiretv', 'info', ' ╠═══> Refresh annulé, '.$this->getName().' non connecté');
+		$this->setStatus('online', false);
+		$this->setStatus('on', false);
+	}
+	log::add('alexafiretv', 'info', " ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════");
+      //log::add('alexafiretv', 'debug', "resolution: " .$resolution );
+	}
+    
+	public function RecupInfo($LogicalId, $SubType, $_shellExec)
+    {
+	try {
+	$_resultat=$this->lanceCmd($LogicalId,$_shellExec);
+	
+	if ($LogicalId == 'DiskTotal') $_resultat=round($_resultat/1000000, 1);
+	
+	} catch (Exception $exc) {
+		log::add('alexafiretv', 'error', __('Erreur2 pour ', __FILE__) . ' : ' . $exc->getMessage());
+		return "error";
+	}		
+		
+		
+		
+		
+	log::add('alexafiretv', 'debug', '╠═══> Traitement '.$LogicalId.' => '.$_resultat);
+	// Ici on vérifie que la commande info existe sinon on l'ajoute et on rafraichi la valeur
+	try {
+	$cmd = $this->getCmd(null, $LogicalId);
+//	if ((!is_object($cmd)) || $forceUpdate) {
+		if (!is_object($cmd)) {
+			log::add('alexafiretv', 'debug', '╠═══> Ajout de la commande info '.$LogicalId);
+	//		if (!is_object($cmd)) $cmd = new alexafiretvCmd();
+			$cmd = new alexafiretvCmd();
+			$cmd->setType('info');
+			$cmd->setLogicalId($LogicalId);
+			$cmd->setSubType($SubType);
+			$cmd->setEqLogic_id($this->getId());
+			if (empty($Name)) $Name = $LogicalId; // déplacé le 19/09/2020
+			$cmd->setName($LogicalId);
+			$cmd->setIsVisible(1);
+	//		if (!empty($setDisplayicon)) $cmd->setDisplay('icon', '<i class="' . $setDisplayicon . '"></i>');
+	//		if (!empty($request)) $cmd->setConfiguration('request', $request);
+			$cmd->setDisplay('title_disable', 0);
+			//$cmd->setOrder($Order);
+			$cmd->save(); // déplacé le 19/09/2020
+		}
+		//$cmd->setValue($_resultat);
+		log::add('alexafiretv', 'info', ' ╠═══> Enregistrement de '.$LogicalId. " --> ".$_resultat);
+        $this->checkAndUpdateCmd($LogicalId, "*".$_resultat."*");
+	
+	} catch (Exception $exc) {
+		log::add('alexafiretv', 'error', __('Erreur pour ', __FILE__) . ' : ' . $exc->getMessage());
+	}
+	
+	return $_resultat;
 	}
 
     public function updateCmd($forceUpdate, $LogicalId, $Type, $SubType, $RunWhenRefresh, $Name, $IsVisible, $title_disable, $setDisplayicon, $infoNameArray, $setTemplate_lien, $request, $infoName, $listValue, $Order, $Test)
@@ -382,7 +517,7 @@ class alexafiretv extends eqLogic
             $cas8 = (($this->hasCapaorFamilyorType("turnOff")) && $widgetSmarthome);
             $cas9 = ($this->hasCapaorFamilyorType("WHA") && $widgetEcho);
             $false = false;
-
+/*
             // Volume on traite en premier car c'est fonction de WHA
             if ($cas6) self::updateCmd($F, 'volume', 'action', 'slider', false, 'Volume', true, true, 'fas fa-volume-up', null, 'alexafiretv::volume', 'volume?value=#slider#', null, null, 27, $cas6);
             else       self::updateCmd($F, 'volume', 'action', 'slider', false, 'Volume', false, true, 'fas fa-volume-up', null, 'alexafiretv::volume', 'volume?value=#slider#', null, null, 27, $cas9);
@@ -462,14 +597,8 @@ class alexafiretv extends eqLogic
             self::updateCmd($F, 'reminder', 'action', 'message', false, 'Envoyer un rappel', true, false, null, null, 'alexafiretv::message', 'reminder?text=#message#&when=#when#&recurring=#recurring#', null, null, 79, $cas3);
 
             self::updateCmd($F, 'onLine', 'info', 'binary', false, "En ligne", false, true, null, null, null, null, null, null, 99, true); //ajouté aout 2020
+*/
 
-
-            $volinfo = $this->getCmd(null, 'volumeinfo');
-            $vol = $this->getCmd(null, 'volume');
-            if ((is_object($volinfo)) && (is_object($vol))) {
-                $vol->setValue($volinfo->getId()); // Lien entre volume et volumeinfo
-                $vol->save();
-            }
             // Pour la commande Refresh, on garde l'ancienne méthode
             if (($this->hasCapaorFamilyorType("REMINDERS")) && !($this->getConfiguration('devicetype') == "Smarthome")) {
                 //Commande Refresh

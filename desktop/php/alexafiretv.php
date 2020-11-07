@@ -118,14 +118,21 @@ $interval = $datetimecreation->diff($datetimeaujourdhui);
 
 		$opacity = ($eqLogic->getIsEnable()) ? '' : ' disableCard';
 		echo '<div class="eqLogicDisplayCard cursor second '.$opacity.'" data-eqLogic_id="'.$eqLogic->getId().'" >';
-
-	
-		if (($eqLogic->getStatus('online') != 'true')){
+	// OFF : <i class="fas fa-power-off"></i>
+	// ON : <i class="fas fa-link"></i>
+	// Disconnecté <i class="fas fa-times-circle"></i>
+		//if (($eqLogic->getStatus('online') == 'true')){
+		if (($eqLogic->getStatus('on') == true)){
 				//echo '<i class="fas fa-power-off" style="color: red;text-shadow: 4px 4px 4px #ccc;float:right" title="Offline"></i>';
-				echo '<span class="badge badge-danger">Off</span>';
-		} elseif (($eqLogic->getStatus('Playing') == 'true')) {
-				echo '<i class="fas loisir-musical7" style="color: #2c8af6;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i>';
-		} else {
+
+				echo '<div style="font-size: 25px;"><i class="fas fa-toggle-on" style="color: #008000;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';				
+				//echo '<span class="badge badge-danger">Offline</span>';
+		} elseif (($eqLogic->getStatus('online') == true)) {
+				echo '<div style="font-size: 20px;"><i class="fas fa-link" style="color: #008000;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';
+				//echo '<i class="fas loisir-musical7" style="color: #2c8af6;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i>';
+		} elseif (($eqLogic->getStatus('online') == false)) {
+				echo '<div style="font-size: 20px;"><i class="fas fa-unlink" style="color: #da1f26;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';
+		}		else {
 			if ($interval->format('%a') <1) {
 				echo '<span class="badge badge-success">Nouveau</span>';
 			}
@@ -212,7 +219,12 @@ foreach (jeeObject::all() as $object)
                   </div>
                 </div>
 				<!-- Onglet "Device Playlist" -->
-
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{Adresse IP}}</label>
+                  <div class="col-sm-4">
+                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="adresseip" placeholder="{{192.168.xx.xx}}"/>
+                  </div>
+                </div>
                 <!-- Catégorie" -->
                 <div class="form-group">
                   <label class="col-sm-4 control-label">{{Catégorie}}</label>
@@ -332,19 +344,19 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value)
 		
     <?php
 	
-	if (config::byKey('utilisateurExperimente', 'alexafiretv',0)!="0")
-	{	
+	//if (config::byKey('utilisateurExperimente', 'alexafiretv',0)!="0")
+	//{	
 	?>
 		
 		<form class="form-horizontal">
           <fieldset>
             <div class="form-actions">
-              <a class="btn btn-success btn-sm cmdAction" id="bt_addespeasyAction"><i class="fa fa-plus-circle"></i> {{Ajouter une commande action}}</a>
+              <a class="btn btn-success btn-sm cmdAction" id="bt_addespeasyAction"><i class="fa fa-plus-circle"></i> {{Ajouter une  Action}}</a> <a class="btn btn-success btn-sm cmdAction" id="bt_addespeasyAction"><i class="fa fa-plus-circle"></i> {{Ajouter une Info}}</a>
             </div>
           </fieldset>
         </form>
 <?php
-	}
+	//}
 ?>		
       </div>
 
