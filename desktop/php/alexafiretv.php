@@ -122,7 +122,11 @@ $interval = $datetimecreation->diff($datetimeaujourdhui);
 	// ON : <i class="fas fa-link"></i>
 	// Disconnecté <i class="fas fa-times-circle"></i>
 		//if (($eqLogic->getStatus('online') == 'true')){
-		if (($eqLogic->getStatus('on') == true)){
+		if (($eqLogic->getConfiguration('adresseip') == "")){
+				//echo '<i class="fas fa-power-off" style="color: red;text-shadow: 4px 4px 4px #ccc;float:right" title="Offline"></i>';
+				echo '<div style="font-size: 25px;"><i class="fas fa-network-wired" style="color: red;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';				
+				//echo '<span class="badge badge-danger">Offline</span>';
+		} elseif (($eqLogic->getStatus('on') == true)){
 				//echo '<i class="fas fa-power-off" style="color: red;text-shadow: 4px 4px 4px #ccc;float:right" title="Offline"></i>';
 
 				echo '<div style="font-size: 25px;"><i class="fas fa-toggle-on" style="color: #008000;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';				
@@ -131,13 +135,12 @@ $interval = $datetimecreation->diff($datetimeaujourdhui);
 				echo '<div style="font-size: 20px;"><i class="fas fa-link" style="color: #008000;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';
 				//echo '<i class="fas loisir-musical7" style="color: #2c8af6;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i>';
 		} elseif (($eqLogic->getStatus('online') == false)) {
-				echo '<div style="font-size: 20px;"><i class="fas fa-unlink" style="color: #da1f26;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';
+				echo '<div style="font-size: 20px;"><i class="fas fa-unlink" style="color: red;text-shadow: 4px 4px 4px #ccc;float:right" title="Playing"></i></div>';
 		}		else {
 			if ($interval->format('%a') <1) {
 				echo '<span class="badge badge-success">Nouveau</span>';
 			}
 		}
-		
 		
 
 		$alternateImg = $eqLogic->getConfiguration('type');
