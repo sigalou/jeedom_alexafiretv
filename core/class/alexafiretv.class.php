@@ -789,7 +789,7 @@ class alexafiretvCmd extends cmd
 
 	if ($this->getEqLogic()->testFireTVConnexion($this->getEqLogic()->getName(), $this->getEqLogic()->getConfiguration('adresseip'))) {
 	log::add('alexafiretv', 'info', " ╔══════════════════════[Lance Commande Action ".$_name."]════════════════════════════════════════════════════════════════════════════");
-	$commande=self::prefixeRoot2() . "adb -s ".$this->getEqLogic()->getConfiguration('adresseip').":5555 shell ". $_cmd." ;
+	$commande=self::prefixeRoot2() . "adb -s ".$this->getEqLogic()->getConfiguration('adresseip').":5555 shell ". $_cmd ;
 	//$commande="sudo adb -s 192.168.0.38:5555 shell dumpsys window displays | grep init | cut -c45-53";
 	//$commande="ls ";
 //	$reponse=trim(shell_exec($commande));
