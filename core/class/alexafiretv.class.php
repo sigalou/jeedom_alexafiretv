@@ -139,7 +139,7 @@ class alexafiretv extends eqLogic
     {
 	$commande=self::prefixeRoot() . "adb -s ".$this->getConfiguration('adresseip').":5555 shell ". $_cmd;
 	log::add('alexafiretv', 'debug', '╠═══> Lancement de la commande '.$_name.' => '.$commande);
-	$reponse=trim(shell_exec($commande));
+	$reponse=trim(exec($commande));
 	log::add('alexafiretv', 'info', " ╠═══> Récupération de ".$_name.' = '.$reponse);
 	return $reponse;
   	}
@@ -164,7 +164,7 @@ class alexafiretv extends eqLogic
 	$commande=self::prefixeRoot() . "adb devices | grep " . $_adresseip . " | cut -f2 | xargs";
 	log::add('alexafiretv', 'info', " ╔══════════════════════[Test connexion à ".$_name."]════════════════════════════════════════════════════════════════════════════");
 	log::add('alexafiretv', 'debug', "╠═══> Envoi de ".$commande);
-	$reponse=shell_exec($commande);
+	$reponse=exec($commande);
 	log::add('alexafiretv', 'debug', "╠═══> Résultat [".$reponse."]");
 
         switch (trim($reponse)) {
@@ -197,7 +197,8 @@ class alexafiretv extends eqLogic
     {
         log::add('alexafiretv', 'info', ' ╠══════> On tente une connexion à '.$_name);
         log::add('alexafiretv', 'debug', '╠══════> Connexion au périphérique '.$_adresseip.' en cours - Envoi de adb connect '.$_adresseip);
-        $reponse=shell_exec(self::prefixeRoot() . "adb connect ".$_adresseip);
+        $reponse=exec(self::prefixeRoot() . "adb connect ".$_adresseip);
+	log::add('alexafiretv', 'debug', "╠═══> Résultat [".$reponse."]");
 		switch (substr(trim($reponse),0,6)) {
 		
             case 'unable':
@@ -512,6 +513,10 @@ class alexafiretv extends eqLogic
             $cas8 = (($this->hasCapaorFamilyorType("turnOff")) && $widgetSmarthome);
             $cas9 = ($this->hasCapaorFamilyorType("WHA") && $widgetEcho);
             $false = false;
+			
+			$cas1 =true;
+            self::updateCmd($F, 'pause', 'action', 'other', false, 'Pause', true, true, 'fas fa-pause', null, null, 'media dispatch pause', null, null, 17, $cas1);
+            self::updateCmd($F, 'play', 'action', 'other', false, 'Play', true, true, 'fas fa-play', null, null, 'media dispatch play', null, null, 18, $cas1);
 /*
             // Volume on traite en premier car c'est fonction de WHA
             if ($cas6) self::updateCmd($F, 'volume', 'action', 'slider', false, 'Volume', true, true, 'fas fa-volume-up', null, 'alexafiretv::volume', 'volume?value=#slider#', null, null, 27, $cas6);
@@ -532,8 +537,6 @@ class alexafiretv extends eqLogic
             self::updateCmd($F, 'url', 'info', 'string', false, null, true, false, null, null, 'alexafiretv::image', null, null, null, 5, $cas1);
             self::updateCmd($F, 'title', 'info', 'string', false, null, true, false, null, null, 'alexafiretv::title', null, null, null, 9, $cas1);
             self::updateCmd($F, 'previous', 'action', 'other', false, 'Previous', true, true, 'fas fa-step-backward', null, null, 'command?command=previous', null, null, 16, $cas1);
-            self::updateCmd($F, 'pause', 'action', 'other', false, 'Pause', true, true, 'fas fa-pause', null, null, 'command?command=pause', null, null, 17, $cas1);
-            self::updateCmd($F, 'play', 'action', 'other', false, 'Play', true, true, 'fas fa-play', null, null, 'command?command=play', null, null, 18, $cas1);
             self::updateCmd($F, 'next', 'action', 'other', false, 'Next', true, true, 'fas fa-step-forward', null, null, 'command?command=next', null, null, 19, $cas1);
             self::updateCmd($F, 'multiplenext', 'action', 'other', false, 'Multiple Next', true, true, 'fas fa-step-forward', null, null, 'multiplenext?text=#message#', null, null, 19, $cas1);
             self::updateCmd($F, 'providerName', 'info', 'string', false, 'Fournisseur de musique :', true, true, 'loisir-musical7', null, null, null, null, null, 20, $cas1);
@@ -595,7 +598,7 @@ class alexafiretv extends eqLogic
 */
 
             // Pour la commande Refresh, on garde l'ancienne méthode
-            if (($this->hasCapaorFamilyorType("REMINDERS")) && !($this->getConfiguration('devicetype') == "Smarthome")) {
+         //   if (($this->hasCapaorFamilyorType("REMINDERS")) && !($this->getConfiguration('devicetype') == "Smarthome")) {
                 //Commande Refresh
                 $createRefreshCmd = true;
                 $refresh = $this->getCmd(null, 'refresh');
@@ -619,7 +622,7 @@ class alexafiretv extends eqLogic
                     $refresh->setEqLogic_id($this->getId());
                     $refresh->save();
                 }
-            }
+          //  }
         } else {
             log::add('alexafiretv', 'warning', 'Pas de capacité détectée sur ' . $this->getName() . ' , assurez-vous que le démon est OK');
         }
@@ -760,14 +763,66 @@ class alexafiretvCmd extends cmd
         }
     }
 
+  public function lanceCommande($_name,$_cmd)
+    {
+	
+	if ($this->getEqLogic()->testFireTVConnexion($this->getEqLogic()->getName(), $this->getEqLogic()->getConfiguration('adresseip'))) {
+	log::add('alexafiretv', 'info', " ╔══════════════════════[Lance Commande Action ".$_name."]════════════════════════════════════════════════════════════════════════════");
+	$commande=self::prefixeRoot2() . "adb shell ". $_cmd."";
+	//$commande="sudo adb -s 192.168.0.38:5555 shell dumpsys window displays | grep init | cut -c45-53";
+	//$commande="ls ";
+//	$reponse=trim(shell_exec($commande));
+	log::add('alexafiretv', 'debug', '╠═══> Envoi de '.$commande);
+	$reponse=exec($commande, $output, $intout);
+	//$reponse=shell_exec($commande);
+//	log::add('alexafiretv', 'info', "*".$reponse."*");;
+//	log::add('alexafiretv', 'info', "output*".json_encode($output, true)."*");
+//	log::add('alexafiretv', 'info', "intout*".$intout."*");
+	log::add('alexafiretv', 'info', " ╠═══> Réponse à la commande ".$_name.' = '.$intout.' (0=OK)');
+		log::add('alexafiretv', 'info', " ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════");
+
+/*$cmd = "ls /etc/passwd_non_existing > /dev/null 2>&1; echo $?";
+$status = shell_exec("$cmd");
+$status = rtrim($status);
+log::add('alexafiretv', 'info', " failed command shell status=$status\n");*/
+	}
+	
+	return $reponse;
+  	}
+	
+  public function prefixeRoot2()
+    {
+	$testRoot="";
+	$root = exec("\$EUID");
+	if ($root != "0") $testRoot = "sudo ";
+	return $testRoot;
+  	}
+	
     public function execute($_options = null)
     {
+		//log::add('alexafiretv', 'debug', "execute");
+		
         if ($this->getLogicalId() == 'refresh') {
             $this->getEqLogic()->refresh();
             return;
         }
-
         $request = $this->buildRequest($_options);
+		/*
+			$cmd = $this->getCmd(null, $LogicalId);
+//	if ((!is_object($cmd)) || $forceUpdate) {
+		if (!is_object($cmd)) {
+			log::add('alexafiretv', 'debug', '╠═══> Commande absente '.$LogicalId);
+		}
+	$shellExec = $cmd->getConfiguration('request', $_shellExecDefault);
+	$_resultat=$this->lanceCmd($LogicalId,$shellExec);
+
+		
+		*/
+		
+		
+		
+		
+		/*
         log::add('alexafiretv', 'info', 'Envoi de ' . $request); //Request : http://192.168.0.21:3456/volume?value=50&device=G090LF118173117U
         $request_http = new com_http($request);
         $request_http->setAllowEmptyReponse(true); //Autorise les réponses vides
@@ -825,21 +880,27 @@ class alexafiretvCmd extends cmd
             } else {
                 log::add('alexafiretv', 'warning', $LogicalIdCmd . ' prévu dans infoName de ' . $this->getName() . ' mais non trouvé ! donc ignoré');
             }
-        }
+        }*/
         return true;
     }
 
 
     private function buildRequest($_options = array())
     {
-        if ($this->getType() != 'action') return $this->getConfiguration('request');
-        $cmdANDarg = explode('?', $this->getConfiguration('request'), 2);
-        if (count($cmdANDarg) > 1)
-            list($command, $arguments) = $cmdANDarg;
+        if ($this->getType() != 'action') return escapeshellcmd($this->getConfiguration('request'));
+        $cmdANDarg = explode('?', escapeshellcmd($this->getConfiguration('request')), 2);
+        if (count($cmdANDarg) > 1) {
+		list($command, $arguments) = $cmdANDarg;}
         else {
-            $command = $this->getConfiguration('request');
+            $command = escapeshellcmd($this->getConfiguration('request'));
             $arguments = "";
         }
+				
+		$_resultat=$this->lanceCommande("test",$command);
+
+				
+/*
+		
         switch ($command) {
             case 'volume':
                 $request = $this->build_ControledeSliderSelectMessage($_options, '50');
@@ -899,6 +960,8 @@ class alexafiretvCmd extends cmd
         if (trim($request) == '') throw new Exception(__('Commande inconnue ou requête vide : ', __FILE__) . print_r($this, true));
         $device = str_replace("_player", "", $this->getEqLogic()->getConfiguration('serial'));
         return 'http://' . config::byKey('internalAddr') . ':3456/' . $request . '&device=' . $device;
+		*/
+		return true;
     }
 
 
@@ -908,7 +971,7 @@ class alexafiretvCmd extends cmd
         if (is_object($cmd))
             $lastvolume = $cmd->execCmd();
 
-        $request = $this->getConfiguration('request');
+        $request = escapeshellcmd($this->getConfiguration('request'));
         //log::add('alexafiretv_node', 'info', '---->Request2:'.$request);
         //log::add('alexafiretv_node', 'debug', '---->getName:'.$this->getEqLogic()->getCmd(null, 'volumeinfo')->execCmd());
         if ((isset($_options['slider'])) && ($_options['slider'] == "")) $_options['slider'] = $default;
@@ -960,7 +1023,7 @@ class alexafiretvCmd extends cmd
 
     private function build_ControleWhenTextRecurring($defaultWhen, $defaultText, $_options = array())
     {
-        $request = $this->getConfiguration('request');
+        $request = escapeshellcmd($this->getConfiguration('request'));
         //log::add('alexafiretv', 'debug', '----build_ControledeSliderSelectMessage RequestFinale:'.$request);
         //log::add('alexafiretv', 'debug', '----build_ControledeSliderSelectMessage _optionsAVANT:'.json_encode($_options));
         if ((!isset($_options['sound'])) && (!isset($_options['message'])) && (!isset($_options['when']))) {
@@ -978,14 +1041,14 @@ class alexafiretvCmd extends cmd
 
     private function build_ControlePosition($_options = array())
     {
-        $request = $this->getConfiguration('request');
+        $request = escapeshellcmd($this->getConfiguration('request'));
         $request = str_replace('#position#', urlencode($_options['position']), $request);
         return $request;
     }
 
     private function build_ControleRien($_options = array())
     {
-        return $this->getConfiguration('request') . "?truc=vide";
+        return escapeshellcmd($this->getConfiguration('request')) . "?truc=vide";
     }
 
     private function buildDeleteAllAlarmsRequest($_options = array())
