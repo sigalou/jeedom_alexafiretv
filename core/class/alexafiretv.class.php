@@ -258,6 +258,7 @@ class alexafiretv extends eqLogic
 
     public static function checkAuth()
     {
+		log::add('alexafiretv', 'debug', 'LANCE checkAuth');
         $result = file_get_contents("http://" . config::byKey('internalAddr') . ":3456/checkAuth");
         $resultjson = json_decode($result, true);
         $value = $resultjson['authenticated'];
@@ -278,7 +279,8 @@ class alexafiretv extends eqLogic
 
     public static function forcerDefaultCmd($_id = null)
     {
-        if (!is_null($_id)) {
+ 		log::add('alexafiretv', 'debug', 'LANCE forcerDefaultCmd');
+       if (!is_null($_id)) {
             $device = alexafiretv::byId($_id);
             if (is_object($device)) {
                 $device->setStatus('forceUpdate', true);
@@ -290,6 +292,7 @@ class alexafiretv extends eqLogic
 
     public static function createNewDevice($deviceName, $deviceSerial)
     {
+ 		log::add('alexafiretv', 'debug', 'LANCE createNewDevice');
 		//$defaultRoom = intval(config::byKey('defaultParentObject', "alexafiretv", '', true));
         event::add('jeedom::alert', array('level' => 'success', 'page' => 'alexafiretv', 'message' => __('Ajout de "' . $deviceName . '"', __FILE__),));
         //log::add('alexaapi_scan', 'debug', 'newDevice');
@@ -311,6 +314,7 @@ class alexafiretv extends eqLogic
 
     public function hasCapaorFamilyorType($thisCapa)
     {
+ 		log::add('alexafiretv', 'debug', 'LANCE hasCapaorFamilyorType');
 
         // Si c'est la bonne famille, on dit OK tout de suite
         $family = $this->getConfiguration('family', "");
@@ -353,6 +357,7 @@ class alexafiretv extends eqLogic
 
     public function refresh()
     { 
+ 		log::add('alexafiretv', 'debug', 'LANCE refresh');
 	
 	if ($this->testFireTVConnexion($this->getName(), $this->getConfiguration('adresseip'))) {
 		log::add('alexafiretv', 'info', " ╔══════════════════════[Refresh de ".$this->getName()."]════════════════════════════════════════════════════════════════════════════");
@@ -429,11 +434,14 @@ class alexafiretv extends eqLogic
 
     public function updateCmd($forceUpdate, $LogicalId, $Type, $SubType, $RunWhenRefresh, $Name, $IsVisible, $title_disable, $setDisplayicon, $infoNameArray, $setTemplate_lien, $request, $infoName, $listValue, $Order, $Test)
     {
+ 		log::add('alexafiretv', 'debug', 'LANCE updateCmd');
+		self::afficheToutesCommandes("updateCmd");
         if ($Test) {
             //log::add('alexafiretv', 'info', 'ajout commande FORCAGE de ' . $LogicalId);
             try {
                 $cmd = $this->getCmd(null, $LogicalId);
                 if ((!is_object($cmd)) || $forceUpdate) {
+					
                     //log::add('alexafiretv', 'info', 'ajout commande FORCAGE forceUpdate :' . $forceUpdate);
                     if (!is_object($cmd)) $cmd = new alexafiretvCmd();
                     $cmd->setType($Type);
@@ -485,18 +493,23 @@ class alexafiretv extends eqLogic
         }
     }
 
+    public function afficheToutesCommandes($Position)
+    {			foreach ($this->getCmd('action') as $cmd) {
+                    log::add('alexafiretv', 'info', $Position.'--cmd:'.$cmd->getLogicalId()."/".$cmd->getName());
+				}
+	}
+	
 
     public function postSave()
-    {
+    {		
+		self::afficheToutesCommandes("postSave");
+		
         //log::add('alexafiretv', 'debug', '-------------------------------postSave '.$this->getName().'***********************************');
         $F = $this->getStatus('forceUpdate'); // forceUpdate permet de recharger les commandes à valeur d'origine, mais sans supprimer/recréer les commandes
         $capa = $this->getConfiguration('capabilities', '');
         $type = $this->getConfiguration('type', '');
         if (!empty($capa)) {
-            if (strstr($this->getName(), "Alexa Apps")) {
-                self::updateCmd($F, 'push', 'action', 'message', false, 'Push', true, true, 'fa jeedomapp-audiospeak', null, null, 'push?text=#message#', null, null, 1, true);
-                return;
-            }
+
             $widgetEcho = ($this->getConfiguration('devicetype') == "Echo");
             $widgetPlayer = ($this->getConfiguration('devicetype') == "Player");
             $widgetSmarthome = ($this->getConfiguration('devicetype') == "Smarthome");
@@ -521,7 +534,13 @@ class alexafiretv extends eqLogic
             self::updateCmd($F, 'next', 'action', 'other', false, 'Next', true, true, 'fas fa-step-forward', null, null, 'media dispatch next', null, null, 17, $cas1);
             self::updateCmd($F, 'previous', 'action', 'other', false, 'Previous', true, true, 'fas fa-step-backward', null, null, 'media dispatch previous', null, null, 18, $cas1);
             self::updateCmd($F, 'volume1', 'action', 'other', false, 'Volume1', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 1 --set 1', null, null, 18, $cas1);
-            self::updateCmd($F, 'volume11', 'action', 'other', false, 'Volume11', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 3 --set 11', null, null, 18, $cas1);/*
+            self::updateCmd($F, 'volume11', 'action', 'other', false, 'Volume11', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 3 --set 11', null, null, 18, $cas1);
+			
+			
+			
+			
+			
+			/*
             // Volume on traite en premier car c'est fonction de WHA
             if ($cas6) self::updateCmd($F, 'volume', 'action', 'slider', false, 'Volume', true, true, 'fas fa-volume-up', null, 'alexafiretv::volume', 'volume?value=#slider#', null, null, 27, $cas6);
             else       self::updateCmd($F, 'volume', 'action', 'slider', false, 'Volume', false, true, 'fas fa-volume-up', null, 'alexafiretv::volume', 'volume?value=#slider#', null, null, 27, $cas9);
@@ -601,53 +620,46 @@ class alexafiretv extends eqLogic
             self::updateCmd($F, 'onLine', 'info', 'binary', false, "En ligne", false, true, null, null, null, null, null, null, 99, true); //ajouté aout 2020
 */
 
-            // Pour la commande Refresh, on garde l'ancienne méthode
-         //   if (($this->hasCapaorFamilyorType("REMINDERS")) && !($this->getConfiguration('devicetype') == "Smarthome")) {
-                //Commande Refresh
-                $createRefreshCmd = true;
-                $refresh = $this->getCmd(null, 'refresh');
-                if (!is_object($refresh)) {
-                    $refresh = cmd::byEqLogicIdCmdName($this->getId(), __('Rafraichir', __FILE__));
-                    if (is_object($refresh)) {
-                        $createRefreshCmd = false;
-                    }
-                }
-                if ($createRefreshCmd) {
-                    if (!is_object($refresh)) {
-                        $refresh = new alexafiretvCmd();
-                        $refresh->setLogicalId('refresh');
-                        $refresh->setIsVisible(1);
-	                    $refresh->setOrder("1");
-                        $refresh->setDisplay('icon', '<i class="fas fa-sync"></i>');
-                        $refresh->setName(__('Refresh', __FILE__));
-                    }
-                    $refresh->setType('action');
-                    $refresh->setSubType('other');
-                    $refresh->setEqLogic_id($this->getId());
-                    $refresh->save();
-                }
+				
+ /*                //Commande Refresh
+			     foreach ($this->getCmd('action') as $cmd) {
+                    log::add('alexafiretv', 'info', 'command:'.$cmd->getName());
+					
+					if (!is_object($cmd)) {
+                    log::add('alexafiretv', 'info', 'existe pas:'.$cmd->getName());
+					} else {
+                    log::add('alexafiretv', 'info', 'existe:'.$cmd->getName());
+					}
+				 }			
+								
+  								
+				$cmd = $this->getCmd(null, 'refresh');
+                if (!is_object($cmd)) {
+                    log::add('alexafiretv', 'info', 'ajout commande Refresh');
+                    $cmd = new alexafiretvCmd();
+					$cmd->setLogicalId('refresh');
+					$cmd->setIsVisible(1);
+					$cmd->setOrder("1");
+					$cmd->setDisplay('icon', '<i class="fas fa-sync"></i>');
+					$cmd->setName(__('Refresh', __FILE__));				
+                    $cmd->setType('action');
+                    $cmd->setSubType('other');
+                    $cmd->setEqLogic_id($this->getId());
+                    $cmd->save();	
+				}					
+*/
+ 
           //  }
         } else {
             log::add('alexafiretv', 'warning', 'Pas de capacité détectée sur ' . $this->getName() . ' , assurez-vous que le démon est OK');
         }
 
-        event::add('jeedom::alert', array('level' => 'success', 'page' => 'alexafiretv', 'message' => __('Mise à jour de "' . $this->getName() . '"', __FILE__),));
-        $this->refresh();
-
-        if ($widgetPlayer) {
-            $device_playlist = str_replace("_player", "", $this->getConfiguration('serial')) . "_playlist"; //Nom du device de la playlist
-            // Si la case "Activer le widget Playlist" est cochée, on rend le device _playlist visible sinon on le passe invisible
-            $eq = eqLogic::byLogicalId($device_playlist, 'alexafiretv');
-            if (is_object($eq)) {
-                $eq->setIsVisible((($this->getConfiguration('widgetPlayListEnable')) ? 1 : 0));
-                $eq->setIsEnable((($this->getConfiguration('widgetPlayListEnable')) ? 1 : 0));
-                $eq->setObject_id($this->getObject_id()); // Attribue au widget Playlist la même pièce que son Player
-                $eq->save();
-            }
-        }
+        //event::add('jeedom::alert', array('level' => 'success', 'page' => 'alexafiretv', 'message' => __('Mise à jour de "' . $this->getName() . '"', __FILE__),));
+        //$this->refresh(); on enlève pour voir si ça pose pas un souci
 
 
         $this->setStatus('forceUpdate', false); //dans tous les cas, on repasse forceUpdate à false
+		self::afficheToutesCommandes("postSave2");
 
     }
 
@@ -656,6 +668,8 @@ class alexafiretv extends eqLogic
     public function preUpdate()
     {
         //log::add('alexafiretv', 'debug', '-------------------------------preUpdate '.$this->getName().'***********************************');
+				self::afficheToutesCommandes("preUpdate");
+
     }
 
     public function preRemove()
@@ -671,7 +685,7 @@ class alexafiretv extends eqLogic
     public function preSave()
     {
         //log::add('alexafiretv', 'debug', '-------------------------------preSave '.$this->getName().'***********************************');
-
+self::afficheToutesCommandes("preSave");
     }
 
     // https://github.com/NextDom/NextDom/wiki/Ajout-d%27un-template-a-votre-plugin
@@ -724,6 +738,8 @@ class alexafiretvCmd extends cmd
 
     public function dontRemoveCmd()
     {
+		 		log::add('alexafiretv', 'debug', 'LANCE dontRemoveCmd cmd');
+
         if ($this->getLogicalId() == 'refresh') {
             return true;
         }
@@ -732,29 +748,29 @@ class alexafiretvCmd extends cmd
 
     public function postSave()
     {
-        //log::add('alexafiretv', 'debug', '**********************postSave '.$this->getName().'***********************************'.$this->getLogicalId());
+        log::add('alexafiretv', 'debug', '**********************postSave '.$this->getName().'***********************************'.$this->getLogicalId());
 
     }
 
-
     public function preSave()
     {
-        //log::add('alexafiretv', 'debug', '**********************preSave '.$this->getName().'***********************************'.$this->getLogicalId());
-
+        log::add('alexafiretv', 'debug', '**********************preSave '.$this->getName().'***********************************'.$this->getLogicalId());
 
         if ($this->getLogicalId() == 'refresh') {
             return;
         }
+		/*
         if ($this->getType() == 'action') {
+        log::add('alexafiretv', 'debug', '!!!!!!!!!!!!!!!!!ICI '.$this->getName().'***********************************'.$this->getLogicalId());
             $eqLogic = $this->getEqLogic();
-            $this->setConfiguration('value', 'http://' . config::byKey('internalAddr') . ':3456/' . $this->getConfiguration('request') . "&device=" . $eqLogic->getConfiguration('serial'));
+            //$this->setConfiguration('value', 'http://' . config::byKey('internalAddr') . ':3456/' . $this->getConfiguration('request') . "&device=" . $eqLogic->getConfiguration('serial'));
         }
-        $actionInfo = alexafiretvCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getName());
-        if (is_object($actionInfo)) $this->setId($actionInfo->getId());
+        $actionInfo = alexaapiCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getName());
+        //if (is_object($actionInfo)) $this->setId($actionInfo->getId());
         if (($this->getType() == 'action') && ($this->getConfiguration('infoName') != '')) { //Si c'est une action et que Commande info est renseigné
-            $actionInfo = alexafiretvCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getConfiguration('infoName'));
+            $actionInfo = alexaapiCmd::byEqLogicIdCmdName($this->getEqLogic_id(), $this->getConfiguration('infoName'));
             if (!is_object($actionInfo)) { //C'est une commande qui n'existe pas
-                $actionInfo = new alexafiretvCmd();
+                $actionInfo = new alexaapiCmd();
                 $actionInfo->setType('info');
                 $actionInfo->setSubType('string');
                 $actionInfo->setConfiguration('taskid', $this->getID());
@@ -762,14 +778,16 @@ class alexafiretvCmd extends cmd
             }
             $actionInfo->setName($this->getConfiguration('infoName'));
             $actionInfo->setEqLogic_id($this->getEqLogic_id());
-            $actionInfo->save();
+            //$actionInfo->save();
             $this->setConfiguration('infoId', $actionInfo->getId());
-        }
+        }*/
+        log::add('alexafiretv', 'debug', '**********************preSave2 '.$this->getName().'***********************************'.$this->getLogicalId());
     }
 
   public function lanceCommande($_name,$_cmd)
     {
-	
+			 		log::add('alexafiretv', 'debug', 'LANCE lanceCommande cmd');
+
 	if ($this->getEqLogic()->testFireTVConnexion($this->getEqLogic()->getName(), $this->getEqLogic()->getConfiguration('adresseip'))) {
 	log::add('alexafiretv', 'info', " ╔══════════════════════[Lance Commande Action ".$_name."]════════════════════════════════════════════════════════════════════════════");
 	$commande=self::prefixeRoot2() . "adb shell ". $_cmd." -s ".$this->getEqLogic()->getConfiguration('adresseip').":5555";
@@ -805,6 +823,7 @@ log::add('alexafiretv', 'info', " failed command shell status=$status\n");*/
     public function execute($_options = null)
     {
 		//log::add('alexafiretv', 'debug', "execute");
+			 		log::add('alexafiretv', 'debug', 'LANCE execute cmd');
 		
         if ($this->getLogicalId() == 'refresh') {
             $this->getEqLogic()->refresh();
