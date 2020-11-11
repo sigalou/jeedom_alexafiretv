@@ -620,8 +620,7 @@ class alexafiretv extends eqLogic
             self::updateCmd($F, 'onLine', 'info', 'binary', false, "En ligne", false, true, null, null, null, null, null, null, 99, true); //ajouté aout 2020
 */
 
-				
- /*                //Commande Refresh
+/*				
 			     foreach ($this->getCmd('action') as $cmd) {
                     log::add('alexafiretv', 'info', 'command:'.$cmd->getName());
 					
@@ -631,8 +630,8 @@ class alexafiretv extends eqLogic
                     log::add('alexafiretv', 'info', 'existe:'.$cmd->getName());
 					}
 				 }			
-								
-  								
+*/								
+                 //Commande Refresh
 				$cmd = $this->getCmd(null, 'refresh');
                 if (!is_object($cmd)) {
                     log::add('alexafiretv', 'info', 'ajout commande Refresh');
@@ -647,7 +646,7 @@ class alexafiretv extends eqLogic
                     $cmd->setEqLogic_id($this->getId());
                     $cmd->save();	
 				}					
-*/
+
  
           //  }
         } else {
@@ -790,7 +789,7 @@ class alexafiretvCmd extends cmd
 
 	if ($this->getEqLogic()->testFireTVConnexion($this->getEqLogic()->getName(), $this->getEqLogic()->getConfiguration('adresseip'))) {
 	log::add('alexafiretv', 'info', " ╔══════════════════════[Lance Commande Action ".$_name."]════════════════════════════════════════════════════════════════════════════");
-	$commande=self::prefixeRoot2() . "adb shell ". $_cmd." -s ".$this->getEqLogic()->getConfiguration('adresseip').":5555";
+	$commande=self::prefixeRoot2() . "adb -s ".$this->getEqLogic()->getConfiguration('adresseip').":5555 shell ". $_cmd." ;
 	//$commande="sudo adb -s 192.168.0.38:5555 shell dumpsys window displays | grep init | cut -c45-53";
 	//$commande="ls ";
 //	$reponse=trim(shell_exec($commande));
