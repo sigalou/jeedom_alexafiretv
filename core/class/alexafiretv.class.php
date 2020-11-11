@@ -517,7 +517,11 @@ class alexafiretv extends eqLogic
 			$cas1 =true;
             self::updateCmd($F, 'pause', 'action', 'other', false, 'Pause', true, true, 'fas fa-pause', null, null, 'media dispatch pause', null, null, 17, $cas1);
             self::updateCmd($F, 'play', 'action', 'other', false, 'Play', true, true, 'fas fa-play', null, null, 'media dispatch play', null, null, 18, $cas1);
-/*
+            self::updateCmd($F, 'playpause', 'action', 'other', false, 'Play-Pause', true, true, 'fas fa-pause', null, null, 'media dispatch play-pause', null, null, 17, $cas1);
+            self::updateCmd($F, 'next', 'action', 'other', false, 'Next', true, true, 'fas fa-step-forward', null, null, 'media dispatch next', null, null, 17, $cas1);
+            self::updateCmd($F, 'previous', 'action', 'other', false, 'Previous', true, true, 'fas fa-step-backward', null, null, 'media dispatch previous', null, null, 18, $cas1);
+            self::updateCmd($F, 'volume1', 'action', 'other', false, 'Volume1', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 1 --set 1', null, null, 18, $cas1);
+            self::updateCmd($F, 'volume11', 'action', 'other', false, 'Volume11', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 3 --set 11', null, null, 18, $cas1);/*
             // Volume on traite en premier car c'est fonction de WHA
             if ($cas6) self::updateCmd($F, 'volume', 'action', 'slider', false, 'Volume', true, true, 'fas fa-volume-up', null, 'alexafiretv::volume', 'volume?value=#slider#', null, null, 27, $cas6);
             else       self::updateCmd($F, 'volume', 'action', 'slider', false, 'Volume', false, true, 'fas fa-volume-up', null, 'alexafiretv::volume', 'volume?value=#slider#', null, null, 27, $cas9);
