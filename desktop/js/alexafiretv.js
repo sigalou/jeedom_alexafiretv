@@ -349,14 +349,14 @@ function addCmdToTable(_cmd) {
   if (init(_cmd.type) == 'action') {
     var tr =
       '<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">' +
-      '<td>' +
-      '<small><small><span class="cmdAttr" data-l1key="id"></span></small></small>' +
-      '</td>' +
+      //'<td>' +
+     // '<small><small><span class="cmdAttr" data-l1key="id"></span></small></small>' +
+     // '</td>' +
       '<td>' +
       '<div class="row">' +
       '<div class="col-lg-1">' +
       '<span class="cmdAttr" data-l1key="display" data-l2key="icon" style="margin-left : 10px;"></span>' +
-      '</div>' +
+      '</div></td><td>' +
       '<div class="col-lg-8">' +
       '<input class="cmdAttr form-control input-sm" data-l1key="name">' +
       '</div>' +
