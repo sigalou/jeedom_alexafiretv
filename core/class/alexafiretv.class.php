@@ -232,26 +232,7 @@ class alexafiretv extends eqLogic
             }
         }
 
-        $d = new Cron\CronExpression('*/15 * * * *', new Cron\FieldFactory);
-        //$d = new Cron\CronExpression('* * * * *', new Cron\FieldFactory);
-        $dependancy_info= self::dependancy_info();
-        if ($d->isDue() && $dependancy_info['state'] == 'ok') {
-            //log::add('alexafiretv', 'debug', '---------------------------------------------DEBUT CRON-'.$autorefresh.'-----------------------');
-            $json = file_get_contents("http://" . config::byKey('internalAddr') . ":3456/devices");
-            $json = json_decode($json, true);
-            $status = [];
-            foreach ($json as $item) {
-                if ($item['name'] == 'This Device') continue;
 
-                $eq = eqLogic::byLogicalId($item['serial'], 'alexafiretv');
-                if (is_object($eq)) {
-                    log::add('alexafiretv', 'debug', 'mise à jour Online status of ' . $item['name'] . ' to ' . (($item['online']) ? 'true' : 'false'));
-                    $eq->setStatus('online', (($item['online']) ? true : false)); //status online
-                    $eq->checkAndUpdateCmd('onLine', (($item['online']) ? true : false)); // commande info onLine
-
-                }
-            }
-        }
 
         //log::add('alexafiretv', 'debug', '---------------------------------------------FIN CRON------------------------');
     }
@@ -314,7 +295,7 @@ class alexafiretv extends eqLogic
 
     public function hasCapaorFamilyorType($thisCapa)
     {
- 		log::add('alexafiretv', 'debug', 'LANCE hasCapaorFamilyorType');
+ 		//log::add('alexafiretv', 'debug', 'LANCE hasCapaorFamilyorType');
 
         // Si c'est la bonne famille, on dit OK tout de suite
         $family = $this->getConfiguration('family', "");
@@ -357,7 +338,7 @@ class alexafiretv extends eqLogic
 
     public function refresh()
     { 
- 		log::add('alexafiretv', 'debug', 'LANCE refresh');
+ 		//log::add('alexafiretv', 'debug', 'LANCE refresh');
 	
 	if ($this->testFireTVConnexion($this->getName(), $this->getConfiguration('adresseip'))) {
 		log::add('alexafiretv', 'info', " ╔══════════════════════[Refresh de ".$this->getName()."]════════════════════════════════════════════════════════════════════════════");
@@ -434,8 +415,8 @@ class alexafiretv extends eqLogic
 
     public function updateCmd($forceUpdate, $LogicalId, $Type, $SubType, $RunWhenRefresh, $Name, $IsVisible, $title_disable, $setDisplayicon, $infoNameArray, $setTemplate_lien, $request, $infoName, $listValue, $Order, $Test)
     {
- 		log::add('alexafiretv', 'debug', 'LANCE updateCmd');
-		self::afficheToutesCommandes("updateCmd");
+ 	//	log::add('alexafiretv', 'debug', 'LANCE updateCmd');
+		//self::afficheToutesCommandes("updateCmd");
         if ($Test) {
             //log::add('alexafiretv', 'info', 'ajout commande FORCAGE de ' . $LogicalId);
             try {
@@ -502,7 +483,7 @@ class alexafiretv extends eqLogic
 
     public function postSave()
     {		
-		self::afficheToutesCommandes("postSave");
+		//self::afficheToutesCommandes("postSave");
 		
         //log::add('alexafiretv', 'debug', '-------------------------------postSave '.$this->getName().'***********************************');
         $F = $this->getStatus('forceUpdate'); // forceUpdate permet de recharger les commandes à valeur d'origine, mais sans supprimer/recréer les commandes
@@ -528,13 +509,26 @@ class alexafiretv extends eqLogic
             $false = false;
 			
 			$cas1 =true;
-            self::updateCmd($F, 'pause', 'action', 'other', false, 'Pause', true, true, 'fas fa-pause', null, null, 'media dispatch pause', null, null, 17, $cas1);
-            self::updateCmd($F, 'play', 'action', 'other', false, 'Play', true, true, 'fas fa-play', null, null, 'media dispatch play', null, null, 18, $cas1);
-            self::updateCmd($F, 'playpause', 'action', 'other', false, 'Play-Pause', true, true, 'fas fa-pause', null, null, 'media dispatch play-pause', null, null, 17, $cas1);
-            self::updateCmd($F, 'next', 'action', 'other', false, 'Next', true, true, 'fas fa-step-forward', null, null, 'media dispatch next', null, null, 17, $cas1);
-            self::updateCmd($F, 'previous', 'action', 'other', false, 'Previous', true, true, 'fas fa-step-backward', null, null, 'media dispatch previous', null, null, 18, $cas1);
-            self::updateCmd($F, 'volume1', 'action', 'other', false, 'Volume1', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 1 --set 1', null, null, 18, $cas1);
-            self::updateCmd($F, 'volume11', 'action', 'other', false, 'Volume11', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 3 --set 11', null, null, 18, $cas1);
+            self::updateCmd($F, 'home', 'action', 'other', false, 'Home', true, true, 'fas fa-home', null, null, 'input keyevent 3', null, null, 100, $cas1);            
+			self::updateCmd($F, 'search', 'action', 'other', false, 'Search', true, true, 'fas fa-search', null, null, 'input keyevent 84', null, null, 101, $cas1);            
+			self::updateCmd($F, 'back', 'action', 'other', false, 'Back', true, true, 'fas fa-undo', null, null, 'input keyevent 4', null, null, 102, $cas1); 
+            self::updateCmd($F, 'sleep', 'action', 'other', false, 'Sleep', true, true, 'fas fa-toggle-off', null, null, 'input keyevent 223', null, null, 103, $cas1); 
+            self::updateCmd($F, 'wakeup', 'action', 'other', false, 'WakeUp', true, true, 'fas fa-toggle-on', null, null, 'input keyevent 224', null, null, 104, $cas1);
+            self::updateCmd($F, 'up', 'action', 'other', false, 'Touche Haut', true, true, 'fas fa-arrow-alt-circle-up', null, null, 'input keyevent 19', null, null, 110, $cas1);
+            self::updateCmd($F, 'down', 'action', 'other', false, 'Touche Bas', true, true, 'fas fa-arrow-alt-circle-down', null, null, 'input keyevent 20', null, null, 111, $cas1);   
+            self::updateCmd($F, 'left', 'action', 'other', false, 'Touche Gauche', true, true, 'fas fa-arrow-alt-circle-left', null, null, 'input keyevent 21', null, null, 112, $cas1);	
+            self::updateCmd($F, 'right', 'action', 'other', false, 'Touche Droite', true, true, 'fas fa-arrow-alt-circle-right', null, null, 'input keyevent 22', null, null, 113, $cas1);			
+			self::updateCmd($F, 'play', 'action', 'other', false, 'Play', true, true, 'fas fa-play', null, null, 'media dispatch play', null, null, 120, $cas1);
+			self::updateCmd($F, 'pause', 'action', 'other', false, 'Pause', true, true, 'fas fa-pause', null, null, 'media dispatch pause', null, null, 121, $cas1);
+            self::updateCmd($F, 'playpause', 'action', 'other', false, 'Play-Pause', true, true, 'fas fa-play-circle', null, null, 'media dispatch play-pause', null, null, 122, $cas1);
+            self::updateCmd($F, 'next', 'action', 'other', false, 'Next', true, true, 'fas fa-step-forward', null, null, 'media dispatch next', null, null, 123, $cas1);
+            self::updateCmd($F, 'previous', 'action', 'other', false, 'Previous', true, true, 'fas fa-step-backward', null, null, 'media dispatch previous', null, null, 124, $cas1);
+            self::updateCmd($F, 'cmd_power', 'action', 'other', false, 'On', true, true, 'fas fa-power-off', null, null, 'input keyevent 26', null, null, 130, $cas1);             
+			self::updateCmd($F, 'netflix', 'action', 'other', false, 'Netflix', true, true, 'fas fa-share-square', null, null, 'am start com.netflix.ninja/.MainActivity', null, null, 150, $cas1); 
+			
+			
+			//self::updateCmd($F, 'volume1', 'action', 'other', false, 'Volume1', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 1 --set 1', null, null, 105, $cas1);
+            //self::updateCmd($F, 'volume11', 'action', 'other', false, 'Volume11', true, true, 'fas fa-volume-up', null, null, 'media volume --show --stream 3 --set 11', null, null, 106, $cas1);
 			
 			
 			
@@ -658,7 +652,7 @@ class alexafiretv extends eqLogic
 
 
         $this->setStatus('forceUpdate', false); //dans tous les cas, on repasse forceUpdate à false
-		self::afficheToutesCommandes("postSave2");
+		//self::afficheToutesCommandes("postSave2");
 
     }
 
@@ -667,7 +661,7 @@ class alexafiretv extends eqLogic
     public function preUpdate()
     {
         //log::add('alexafiretv', 'debug', '-------------------------------preUpdate '.$this->getName().'***********************************');
-				self::afficheToutesCommandes("preUpdate");
+				//self::afficheToutesCommandes("preUpdate");
 
     }
 
@@ -684,7 +678,7 @@ class alexafiretv extends eqLogic
     public function preSave()
     {
         //log::add('alexafiretv', 'debug', '-------------------------------preSave '.$this->getName().'***********************************');
-self::afficheToutesCommandes("preSave");
+//self::afficheToutesCommandes("preSave");
     }
 
     // https://github.com/NextDom/NextDom/wiki/Ajout-d%27un-template-a-votre-plugin
@@ -737,7 +731,7 @@ class alexafiretvCmd extends cmd
 
     public function dontRemoveCmd()
     {
-		 		log::add('alexafiretv', 'debug', 'LANCE dontRemoveCmd cmd');
+		 //		log::add('alexafiretv', 'debug', 'LANCE dontRemoveCmd cmd');
 
         if ($this->getLogicalId() == 'refresh') {
             return true;
@@ -747,13 +741,13 @@ class alexafiretvCmd extends cmd
 
     public function postSave()
     {
-        log::add('alexafiretv', 'debug', '**********************postSave '.$this->getName().'***********************************'.$this->getLogicalId());
+        //log::add('alexafiretv', 'debug', '**********************postSave '.$this->getName().'***********************************'.$this->getLogicalId());
 
     }
 
     public function preSave()
     {
-        log::add('alexafiretv', 'debug', '**********************preSave '.$this->getName().'***********************************'.$this->getLogicalId());
+     //   log::add('alexafiretv', 'debug', '**********************preSave '.$this->getName().'***********************************'.$this->getLogicalId());
 
         if ($this->getLogicalId() == 'refresh') {
             return;
@@ -780,12 +774,12 @@ class alexafiretvCmd extends cmd
             //$actionInfo->save();
             $this->setConfiguration('infoId', $actionInfo->getId());
         }*/
-        log::add('alexafiretv', 'debug', '**********************preSave2 '.$this->getName().'***********************************'.$this->getLogicalId());
+     //   log::add('alexafiretv', 'debug', '**********************preSave2 '.$this->getName().'***********************************'.$this->getLogicalId());
     }
 
   public function lanceCommande($_name,$_cmd)
     {
-			 		log::add('alexafiretv', 'debug', 'LANCE lanceCommande cmd');
+		//	 		log::add('alexafiretv', 'debug', 'LANCE lanceCommande cmd');
 
 	if ($this->getEqLogic()->testFireTVConnexion($this->getEqLogic()->getName(), $this->getEqLogic()->getConfiguration('adresseip'))) {
 	log::add('alexafiretv', 'info', " ╔══════════════════════[Lance Commande Action ".$_name."]════════════════════════════════════════════════════════════════════════════");
@@ -822,7 +816,7 @@ log::add('alexafiretv', 'info', " failed command shell status=$status\n");*/
     public function execute($_options = null)
     {
 		//log::add('alexafiretv', 'debug', "execute");
-			 		log::add('alexafiretv', 'debug', 'LANCE execute cmd');
+			 //		log::add('alexafiretv', 'debug', 'LANCE execute cmd');
 		
         if ($this->getLogicalId() == 'refresh') {
             $this->getEqLogic()->refresh();

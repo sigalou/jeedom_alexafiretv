@@ -157,9 +157,16 @@ $('#bt_cronGenerator').off('click').on('click', function () {
   });
 });
 
-$("#bt_addespeasyAction").off('click').on('click', function (event) {
+$("#bt_addAction").off('click').on('click', function (event) {
   var _cmd = {
     type: 'action'
+  };
+  addCmdToTable(_cmd);
+});
+$("#bt_addInfo").off('click').on('click', function (event) {
+  var _cmd = {
+    type: 'info',
+    subType: 'string'
   };
   addCmdToTable(_cmd);
 });
@@ -226,7 +233,7 @@ $('.eqLogicAttr[data-l1key=configuration][data-l2key=type]').on('change', functi
   // Ici il faudra faire comme dans desktop/php/alexafiretv.php ligne 268 chercher type et à défaut family
   $icon = $('.eqLogicAttr[data-l1key=configuration][data-l2key=type]').value();
   if ($icon != '' && $icon != null)
-    $('#img_device').attr("src", 'plugins/alexafiretv/core/config/devices/' + $icon + '.png');
+    $('#img_device').attr("src", 'plugins/alexaapi/core/config/devices/' + $icon + '.png');
 
   var id = $('.eqLogicAttr[data-l1key=id]')[0].value;
   if (id) {
@@ -285,11 +292,6 @@ function addCmdToTable(_cmd) {
   var DefinitionDivPourCommandesPredefinies = 'style="display: none;"';
   if (init(_cmd.logicalId) == "")
     DefinitionDivPourCommandesPredefinies = "";
-  //  if ((init(_cmd.logicalId) == 'whennextreminder') || (init(_cmd.logicalId) == '00whennextalarm') || (init(_cmd.logicalId) == 'whennextreminderlabel') || (init(_cmd.logicalId) == 'musicalalarmmusicentity') || (init(_cmd.logicalId) == 'whennextmusicalalarm')) {
-
-  if ((init(_cmd.logicalId) == 'updateallalarms')) {
-    return;
-  }
 
   //console.log("addCmdToTable : " + init(_cmd.logicalId));
 
@@ -312,7 +314,8 @@ function addCmdToTable(_cmd) {
       //     +     '<span class="type" type="' + init(_cmd.type) + '">' + jeedom.cmd.availableType() + '</span>'
       +
       '<input class="cmdAttr form-control type input-sm" data-l1key="type" value="info" disabled style="margin-bottom : 5px;" />'
-      //     +     '<span class="subType" subType="' + init(_cmd.subType) + '"></span>'
+           +     '<div ' + DefinitionDivPourCommandesPredefinies + '>'
+           +     '<span class="subType" subType="' + init(_cmd.subType) + '"></span></div>'
       +
       '</td>' +
       '<td><input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="request">'
@@ -372,8 +375,8 @@ function addCmdToTable(_cmd) {
     tr += '</div></td>';
     tr += '<td>' +
       '<input class="cmdAttr form-control input-sm"';
-    if (init(_cmd.logicalId) != "")
-      tr += 'readonly';
+   // if (init(_cmd.logicalId) != "")
+   //   tr += 'readonly';
 
     if (init(_cmd.logicalId) == "refresh")
       tr += ' style="display:none;" ';

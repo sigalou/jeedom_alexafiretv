@@ -303,20 +303,12 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value)
                 <div class="form-group">
                   <div class="col-sm-10">
                     <center>
+					
                       <img src="core/img/no_image.gif" data-original=".jpg" id="img_device" class="img-responsive" style="max-height : 250px;"  onerror="this.src='plugins/alexaapi/core/config/devices/default.png'"/>
                     </center>
                   </div>
                 </div>
-                
-				
-				
-                <div class="form-group">
-                  <label class="col-sm-2 control-label">{{Multiroom avec}}</label>
-                  <div class="col-sm-8" id="multiroom-members">
-                  <!-- Liste des membres du multiroom -->
 
-                  </div>
-                </div>
               </fieldset>
             </form>
           </div>
@@ -355,7 +347,7 @@ foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value)
 		<form class="form-horizontal">
           <fieldset>
             <div class="form-actions">
-              <a class="btn btn-success btn-sm cmdAction" id="bt_addespeasyAction"><i class="fa fa-plus-circle"></i> {{Ajouter une  Action}}</a> <a class="btn btn-success btn-sm cmdAction" id="bt_addespeasyAction"><i class="fa fa-plus-circle"></i> {{Ajouter une Info}}</a>
+              <a class="btn btn-success btn-sm cmdAction" id="bt_addAction"><i class="fa fa-plus-circle"></i> {{Ajouter une  Action}}</a> <a class="btn btn-success btn-sm cmdAction" id="bt_addInfo"><i class="fa fa-plus-circle"></i> {{Ajouter une Info}}</a>
             </div>
           </fieldset>
         </form>

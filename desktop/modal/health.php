@@ -62,7 +62,7 @@ $eqLogics = alexafiretv::byType('alexafiretv');
 			<th>{{Device}}</th>
 			<th>{{Serial}}</th>
 			<th>{{Type}}</th>
-			<th>{{Présent *}}</th>
+			<th>{{Présent}}</th>
 			<th>{{Date création}}</th>
 		</tr>
 	</thead>
@@ -93,4 +93,3 @@ foreach ($eqLogics as $eqLogic) {
 ?>
 	</tbody>
 </table>
-* <B>Présent</B> va être supprimé, ne fonctionne pas sur les Fire TV.
