@@ -510,7 +510,7 @@ class alexafiretv extends eqLogic
 			
 			$cas1 =true;
             self::updateCmd($F, 'home', 'action', 'other', false, 'Home', true, true, 'fas fa-home', null, null, 'input keyevent 3', null, null, 100, $cas1);            
-			self::updateCmd($F, 'search', 'action', 'other', false, 'Search', true, true, 'fas fa-search', null, null, 'input keyevent 84', null, null, 101, $cas1);            
+            self::updateCmd($F, 'menu', 'action', 'other', false, 'Menu', true, true, 'fas fa-bars', null, null, 'input keyevent 1', null, null, 101, $cas1);  			self::updateCmd($F, 'search', 'action', 'other', false, 'Search', true, true, 'fas fa-search', null, null, 'input keyevent 84', null, null, 101, $cas1);            
 			self::updateCmd($F, 'back', 'action', 'other', false, 'Back', true, true, 'fas fa-undo', null, null, 'input keyevent 4', null, null, 102, $cas1); 
             self::updateCmd($F, 'sleep', 'action', 'other', false, 'Sleep', true, true, 'fas fa-toggle-off', null, null, 'input keyevent 223', null, null, 103, $cas1); 
             self::updateCmd($F, 'wakeup', 'action', 'other', false, 'WakeUp', true, true, 'fas fa-toggle-on', null, null, 'input keyevent 224', null, null, 104, $cas1);
@@ -518,6 +518,7 @@ class alexafiretv extends eqLogic
             self::updateCmd($F, 'down', 'action', 'other', false, 'Touche Bas', true, true, 'fas fa-arrow-alt-circle-down', null, null, 'input keyevent 20', null, null, 111, $cas1);   
             self::updateCmd($F, 'left', 'action', 'other', false, 'Touche Gauche', true, true, 'fas fa-arrow-alt-circle-left', null, null, 'input keyevent 21', null, null, 112, $cas1);	
             self::updateCmd($F, 'right', 'action', 'other', false, 'Touche Droite', true, true, 'fas fa-arrow-alt-circle-right', null, null, 'input keyevent 22', null, null, 113, $cas1);			
+            self::updateCmd($F, 'enter', 'action', 'other', false, 'Touche Entrée', true, true, 'fas fa-sign-in-alt', null, null, 'input keyevent 66', null, null, 114, $cas1);			
 			self::updateCmd($F, 'play', 'action', 'other', false, 'Play', true, true, 'fas fa-play', null, null, 'media dispatch play', null, null, 120, $cas1);
 			self::updateCmd($F, 'pause', 'action', 'other', false, 'Pause', true, true, 'fas fa-pause', null, null, 'media dispatch pause', null, null, 121, $cas1);
             self::updateCmd($F, 'playpause', 'action', 'other', false, 'Play-Pause', true, true, 'fas fa-play-circle', null, null, 'media dispatch play-pause', null, null, 122, $cas1);
