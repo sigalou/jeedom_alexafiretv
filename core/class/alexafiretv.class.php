@@ -6,7 +6,7 @@ class alexafiretv extends eqLogic
 	/*     * *************************Attributs pour autoriser les onglets Affichage et Disposition****************************** */
 	public static $_widgetPossibility = array('custom' => true, 'custom::layout' => true);
 	
-    public static function templateWidget()
+    public static function templateWidget_exxxxxxxxxxxxxxxxxxxxxxxxx()
     {
         $return = array('info' => array('string' => array(), 'numeric' => array()));
         $return = array('action' => array('select' => array(), 'slider' => array()));
