@@ -6,114 +6,6 @@ class alexafiretv extends eqLogic
 	/*     * *************************Attributs pour autoriser les onglets Affichage et Disposition****************************** */
 	public static $_widgetPossibility = array('custom' => true, 'custom::layout' => true);
 	
-    public static function templateWidget_exxxxxxxxxxxxxxxxxxxxxxxxx()
-    {
-        $return = array('info' => array('string' => array(), 'numeric' => array()));
-        $return = array('action' => array('select' => array(), 'slider' => array()));
-        $return['action']['other']['repeat'] = array(
-            'template' => 'tmplicon',
-            'replace' => array("#_icon_off_#" => "<i class='fas fa-redo' style='opacity:0.3'></i>", "#_icon_on_#" => "<i class='fas fa-redo'></i>", "#hide_name#" => "hidden", "#message_disable#" => "1")
-        );
-        $return['action']['other']['shuffle'] = array(
-            'template' => 'tmplicon',
-            'replace' => array("#_icon_off_#" => "<i class='fas fa-random fa-ld' style='opacity:0.3'></i>", "#_icon_on_#" => "<i class='fas fa-random fa-ld'></i>", "#hide_name#" => "hidden", "#message_disable#" => "1")
-        );
-        $return['info']['string']['subText2'] = array('template' => 'album');
-        $return['info']['string']['alarmmusicalmusic'] = array('template' => 'alarmmusicalmusic', 'replace' => array("#hide_name#" => "hidden"));
-        $return['info']['string']['title'] = array('template' => 'title');
-        $return['info']['string']['url'] = array('template' => 'image');
-        $return['info']['string']['interaction'] = array('template' => 'cadre');
-        $return['action']['message']['message'] = array(
-            'template' => 'message',
-            'replace' => array("#_desktop_width_#" => "100", "#_mobile_width_#" => "50", "#title_disable#" => "1", "#message_disable#" => "0")
-        );
-        $return['action']['select']['list'] = array(
-            'template' => 'table',
-            'replace' => array("#_desktop_width_#" => "100", "#_mobile_width_#" => "50", "#hide_name#" => "whidden")
-        );
-        $return['action']['slider']['volume'] = array(
-            'template' => 'bouton',
-            'replace' => array("#hide_name#" => "hidden", "#step#" => "10")
-        );
-        $return['info']['string']['state'] = array(
-            'template' => 'tmplmultistate_alexafiretv',
-            'replace' => array("#hide_name#" => "hidden", "#hide_state#" => "hidden", "#marge_gauche#" => "5px", "#marge_haut#" => "-15px"),
-            'test' => array(
-                array(
-                    'operation' => "#value# == 'PLAYING'", 'state_light' => "<img src='plugins/alexafiretv/core/img/playing.png'  title ='" . __('Playing', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/playing.png' title ='" . __('En charge', __FILE__) . "'>"
-                ),
-                array('operation' => "#value# != 'PLAYING'", 'state_light' => "<img src='plugins/alexafiretv/core/img/paused.png' title ='" . __('En Pause', __FILE__) . "'>")
-            )
-        );
-        $return['info']['string']['alarm'] = array(
-            'template' => 'alarm',
-            'replace' => array("#hide_name#" => "hidden", "#marge_gauche#" => "55px", "#marge_haut#" => "15px"),
-            'test' => array(
-                array(
-                    'operation' => "#value# == ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Clock-Icon-Off.png' title ='" . __('Playing', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Clock-Icon-Off_dark.png' title ='" . __('En charge', __FILE__) . "'>"
-                ),
-                array(
-                    'operation' => "#value# != ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Clock-Icon-On.png' title ='" . __('En Pause', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Clock-Icon-On_dark.png' title ='" . __('En Pause', __FILE__) . "'>"
-                )
-            )
-        );
-        $return['info']['string']['alarmmusical'] = array(
-            'template' => 'alarm',
-            'replace' => array("#hide_name#" => "hidden", "#marge_gauche#" => "55px", "#marge_haut#" => "15px"),
-            'test' => array(
-                array(
-                    'operation' => "#value# == ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Musical-Icon-Off.png' title ='" . __('Playing', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Musical-Icon-Off_dark.png' title ='" . __('En charge', __FILE__) . "'>"
-                ),
-                array(
-                    'operation' => "#value# != ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Musical-Icon-On.png' title ='" . __('En Pause', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Musical-Icon-On_dark.png' title ='" . __('En Pause', __FILE__) . "'>"
-                )
-            )
-        );
-        $return['info']['string']['timer'] = array(
-            'template' => 'alarm',
-            'replace' => array("#hide_name#" => "hidden", "#marge_gauche#" => "55px", "#marge_haut#" => "15px"),
-            'test' => array(
-                array(
-                    'operation' => "#value# == ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Timer-Icon-Off.png' title ='" . __('Playing', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Timer-Icon-Off_dark.png' title ='" . __('En charge', __FILE__) . "'>"
-                ),
-                array(
-                    'operation' => "#value# != ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Timer-Icon-On.png' title ='" . __('En Pause', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Timer-Icon-On_dark.png' title ='" . __('En Pause', __FILE__) . "'>"
-                )
-            )
-        );
-        $return['info']['string']['reminder'] = array(
-            'template' => 'alarm',
-            'replace' => array("#hide_name#" => "hidden", "#marge_gauche#" => "55px", "#marge_haut#" => "4px"),
-            'test' => array(
-                array(
-                    'operation' => "#value# == ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Reminder-Icon-Off.png' title ='" . __('Playing', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Reminder-Icon-Off_dark.png' title ='" . __('En charge', __FILE__) . "'>"
-                ),
-                array(
-                    'operation' => "#value# != ''",
-                    'state_light' => "<img src='plugins/alexafiretv/core/img/Alarm-Reminder-Icon-On.png' title ='" . __('En Pause', __FILE__) . "'>",
-                    'state_dark' => "<img src='plugins/alexafiretv/core/img/Alarm-Reminder-Icon-On_dark.png' title ='" . __('En Pause', __FILE__) . "'>"
-                )
-            )
-        );
-        return $return;
-    }
-
-
     public static function dependancy_info()
     {
         $return                  = array();
@@ -445,6 +337,7 @@ class alexafiretv extends eqLogic
                     if (!empty($listValue)) $cmd->setConfiguration('listValue', $listValue);
                     $cmd->setConfiguration('RunWhenRefresh', $RunWhenRefresh);
                     $cmd->setDisplay('title_disable', $title_disable);
+					$cmd->setDisplay('showNameOndashboard', !$title_disable);
                     $cmd->setOrder($Order);
                     //cas particulier
                     if (($LogicalId == 'speak') || ($LogicalId == 'announcement')) {

@@ -107,7 +107,7 @@ var str=data.logicalId
     <!-- Container de la liste -->
 	<div class="panel">
 		<div class="panel-body">
-			<div class="eqLogicThumbnailContainer second">
+			<div style="position: relative;" class="eqLogicThumbnailContainer second">
 <?php
 foreach($eqLogics as $eqLogic) {
 $datetimecreation = new DateTime($eqLogic->getConfiguration('createtime'));
