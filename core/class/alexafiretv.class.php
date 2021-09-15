@@ -293,7 +293,7 @@ class alexafiretv extends eqLogic
 		}
 	$shellExec = $cmd->getConfiguration('request', $_shellExecDefault);
 	$_resultat=$this->lanceCmd($LogicalId,$shellExec);
-	if ($LogicalId == 'DiskTotal') $_resultat=round($_resultat/1000000, 1);
+	if ($LogicalId == 'DiskTotal') $_resultat=round(intval($_resultat)/1000000, 1);
 		
 		
 		//$cmd->setValue($_resultat);
